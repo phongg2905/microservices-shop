@@ -1,0 +1,82 @@
+networks:
+  microservices-net:
+    driver: bridge
+
+volumes:
+  mongo_data:
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo_db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_DATABASE: orders_db
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - microservices-net
+
+  product-service:
+    build: ./product-service
+    container_name: product_service
+    env_file:
+      - ./product-service/.env
+    environment:
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    networks:
+      - microservices-net
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth_service
+    env_file:
+      - ./auth-service/.env
+    environment:
+      PORT: 3003
+      JWT_SECRET: dev-access-secret
+      JWT_REFRESH_SECRET: dev-refresh-secret
+      ACCESS_TOKEN_EXPIRES_IN: 15m
+      REFRESH_TOKEN_EXPIRES_IN: 7d
+    ports:
+      - "3003:3003"
+    networks:
+      - microservices-net
+
+  order-service:
+    build: ./order-service
+    container_name: order_service
+    env_file:
+      - ./order-service/.env
+    environment:
+      PORT: 3002
+      PRODUCT_SERVICE_URL: http://product-service:3001
+    ports:
+      - "3002:3002"
+    depends_on:
+      - product-service
+    networks:
+      - microservices-net
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api_gateway
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      PRODUCT_SERVICE_URL: http://product-service:3001/api/products
+      ORDER_SERVICE_URL: http://order-service:3002/api/orders
+      AUTH_SERVICE_URL: http://auth-service:3003/api/auth
+      JWT_SECRET: dev-access-secret
+    depends_on:
+      - product-service
+      - order-service
+      - auth-service
+    networks:
+      - microservices-net
