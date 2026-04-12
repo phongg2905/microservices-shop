@@ -27,6 +27,7 @@ services:
       - ./product-service/.env
     environment:
       PORT: 3001
+      REDIS_URL: redis://redis:6379
     ports:
       - "3001:3001"
     networks:
@@ -78,5 +79,13 @@ services:
       - product-service
       - order-service
       - auth-service
+    networks:
+      - microservices-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
     networks:
       - microservices-net

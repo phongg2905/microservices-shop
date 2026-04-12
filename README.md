@@ -18,6 +18,8 @@
 - PostgreSQL (Supabase) + Prisma ORM.
 - CRUD sản phẩm, danh mục, phân trang, tìm kiếm, lọc/sắp xếp theo giá.
 - Validate dữ liệu và công bố Swagger API docs.
+- Upload ảnh sản phẩm qua Cloudinary.
+- Tích hợp Redis cache cho danh sách sản phẩm.
 
 ### 3. Order Service (port 3002)
 - MongoDB (MongoDB Atlas) + Mongoose.
@@ -30,7 +32,7 @@
 - Endpoint `me` truy xuất user hiện tại, xác thực JWT.
 
 ## Cấu trúc thư mục
-```
+```bash
 microservices-shop/
 ├── api-gateway/
 ├── auth-service/
@@ -38,13 +40,13 @@ microservices-shop/
 ├── product-service/
 ├── docker-compose.yml
 └── README.md
-```
 
 ## Công nghệ sử dụng
 - Node.js, Express.js
 - Prisma ORM, PostgreSQL (Supabase)
 - MongoDB, Mongoose (MongoDB Atlas)
 - Cloudinary, Multer (upload ảnh sản phẩm)
+- Redis, ioredis (cache dữ liệu sản phẩm)
 - Swagger UI
 - JWT Authentication
 - Docker & Docker Compose
@@ -56,6 +58,8 @@ microservices-shop/
 - Pagination + filtering + sorting + searching.
 - Validate dữ liệu đầu vào, tài liệu Swagger.
 - Upload ảnh sản phẩm lên Cloudinary qua endpoint riêng, tự cập nhật `imageUrl`.
+- Cache danh sách sản phẩm bằng Redis trong 5 phút.
+- Tự động xóa cache sau các thao tác POST, PUT, DELETE và upload ảnh.
 
 ### Order Service
 - Tạo đơn hàng, lấy đơn theo khách hàng, lọc theo trạng thái.
@@ -73,6 +77,8 @@ microservices-shop/
 ### Docker & Deploy
 - Docker Compose chạy toàn bộ hệ thống cục bộ.
 - Product-service đã deploy lên Railway.
+- Order-service, Auth-service và API Gateway đã deploy thành công trên Railway.
+- Redis đã được tích hợp trong Docker Compose để phục vụ cache local.
 
 ## Hướng dẫn chạy project local
 1. Clone project
@@ -120,4 +126,6 @@ microservices-shop/
 - Api Gateway: https://glistening-flow-production-6833.up.railway.app/
 ## Kết quả kiểm thử
 - CRUD product, order, auth, gateway với JWT chạy thành công ở local.
+- Upload ảnh sản phẩm lên Cloudinary hoạt động đúng.
+- Redis cache hoạt động với GET /api/products, tự động làm mới sau khi dữ liệu thay đổi.
 - Product-service, Order-service, Auth-service, Api-gateway deploy Railway hoạt động ổn định.

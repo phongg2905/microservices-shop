@@ -1,52 +1,104 @@
 // src/controllers/productController.js
 const prisma = require("../config/prisma");
+
+const {
+    redis,
+    buildProductsCacheKey,
+    clearProductsCache,
+} = require("../utils/cache");
+
 // ──────────────────────────────────
 // GET /api/products — Lấy danh sách có phân trang, lọc, sắp xếp
 // ──────────────────────────────────
 const getProducts = async (req, res, next) => {
     try {
-        const {
-            page = 1, limit = 10,
-            search = "", category,
-            sortBy = "createdAt", order = "desc",
-            minPrice, maxPrice, inStock
+        const cacheKey = buildProductsCacheKey(req.query);
 
+        const cachedData = await redis.get(cacheKey);
+        if (cachedData) {
+            console.log("Products served from Redis cache");
+            return res.json(JSON.parse(cachedData));
+        }
+
+        const {
+            page = 1,
+            limit = 10,
+            search = "",
+            category,
+            sortBy = "createdAt",
+            order = "desc",
+            minPrice,
+            maxPrice,
+            inStock,
         } = req.query;
-        const skip = (parseInt(page) - 1) * parseInt(limit);
-        // Xây dựng điều kiện filter
+
+        const parsedPage = parseInt(page, 10);
+        const parsedLimit = parseInt(limit, 10);
+        const skip = (parsedPage - 1) * parsedLimit;
+
         const where = {
             isActive: true,
-            ...(search && { name: { contains: search, mode: "insensitive" } }),
-            ...(category && { category: { slug: category } }),
-            ...(minPrice || maxPrice) && {
+            ...(search && {
+                name: {
+                    contains: search,
+                    mode: "insensitive",
+                },
+            }),
+            ...(category && {
+                category: {
+                    slug: category,
+                },
+            }),
+            ...((minPrice || maxPrice) && {
                 price: {
                     ...(minPrice && { gte: parseFloat(minPrice) }),
                     ...(maxPrice && { lte: parseFloat(maxPrice) }),
-                }
-            },
-            ...(inStock === "true" && { stock: { gt: 0 } }),
+                },
+            }),
+            ...(inStock === "true" && {
+                stock: {
+                    gt: 0,
+                },
+            }),
         };
-        // Chạy song song 2 queries
+
         const [products, total] = await Promise.all([
             prisma.product.findMany({
                 where,
-                include: { category: { select: { name: true, slug: true } } },
-                orderBy: { [sortBy]: order },
+                include: {
+                    category: {
+                        select: {
+                            name: true,
+                            slug: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    [sortBy]: order,
+                },
                 skip,
-                take: parseInt(limit),
+                take: parsedLimit,
             }),
             prisma.product.count({ where }),
         ]);
-        res.json({
+
+        const response = {
             success: true,
             data: products,
             pagination: {
-                total, page: parseInt(page), limit: parseInt(limit),
-                totalPages: Math.ceil(total / parseInt(limit))
-            }
-        });
+                total,
+                page: parsedPage,
+                limit: parsedLimit,
+                totalPages: Math.ceil(total / parsedLimit),
+            },
+        };
+
+        await redis.set(cacheKey, JSON.stringify(response), "EX", 300);
+        console.log("Products served from database");
+
+        res.json(response);
     } catch (error) {
-        next(error); // Chuyển lỗi sang errorHandler
+        next(error);
     }
 };
 // ──────────────────────────────────
@@ -76,6 +128,9 @@ const createProduct = async (req, res, next) => {
             data: { name, slug, price, description, stock, imageUrl, categoryId },
             include: { category: true }
         });
+
+        await clearProductsCache();
+
         res.status(201).json({
             success: true, data: product, message: "Tạo sản phẩm thành công"
         });
@@ -91,6 +146,9 @@ const updateProduct = async (req, res, next) => {
             data: req.body,
             include: { category: true }
         });
+
+        await clearProductsCache();
+
         res.json({ success: true, data: product, message: "Cập nhật thành công" });
     } catch (error) { next(error); }
 };
@@ -103,6 +161,9 @@ const deleteProduct = async (req, res, next) => {
             where: { id: parseInt(req.params.id) },
             data: { isActive: false } // Soft delete — không xoá thật
         });
+
+        await clearProductsCache();
+
         res.json({ success: true, message: "Đã ẩn sản phẩm thành công" });
     } catch (error) { next(error); }
 };
@@ -124,6 +185,8 @@ const uploadProductImage = async (req, res, next) => {
                 imageUrl: req.file.path,
             },
         });
+
+        await clearProductsCache();
 
         res.json({
             success: true,
