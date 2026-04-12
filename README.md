@@ -40,7 +40,7 @@ microservices-shop/
 ├── product-service/
 ├── docker-compose.yml
 └── README.md
-
+```
 ## Công nghệ sử dụng
 - Node.js, Express.js
 - Prisma ORM, PostgreSQL (Supabase)
