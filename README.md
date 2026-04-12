@@ -44,6 +44,7 @@ microservices-shop/
 - Node.js, Express.js
 - Prisma ORM, PostgreSQL (Supabase)
 - MongoDB, Mongoose (MongoDB Atlas)
+- Cloudinary, Multer (upload ảnh sản phẩm)
 - Swagger UI
 - JWT Authentication
 - Docker & Docker Compose
@@ -54,6 +55,7 @@ microservices-shop/
 - Lấy danh sách, chi tiết, tạo, cập nhật, xóa mềm sản phẩm.
 - Pagination + filtering + sorting + searching.
 - Validate dữ liệu đầu vào, tài liệu Swagger.
+- Upload ảnh sản phẩm lên Cloudinary qua endpoint riêng, tự cập nhật `imageUrl`.
 
 ### Order Service
 - Tạo đơn hàng, lấy đơn theo khách hàng, lọc theo trạng thái.
@@ -95,6 +97,7 @@ microservices-shop/
 - `POST /api/products`
 - `PUT /api/products/:id`
 - `DELETE /api/products/:id`
+- `POST /api/products/:id/image`
 
 ### Order Service
 - `POST /api/orders`

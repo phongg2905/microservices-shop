@@ -106,7 +106,40 @@ const deleteProduct = async (req, res, next) => {
         res.json({ success: true, message: "Đã ẩn sản phẩm thành công" });
     } catch (error) { next(error); }
 };
+
+const uploadProductImage = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Vui lòng chọn file ảnh",
+            });
+        }
+
+        const productId = parseInt(req.params.id, 10);
+
+        const product = await prisma.product.update({
+            where: { id: productId },
+            data: {
+                imageUrl: req.file.path,
+            },
+        });
+
+        res.json({
+            success: true,
+            message: "Upload ảnh thành công",
+            data: {
+                id: product.id,
+                imageUrl: product.imageUrl,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 module.exports = {
     getProducts, getProductById, createProduct, updateProduct,
-    deleteProduct
+    deleteProduct, uploadProductImage,
 };
