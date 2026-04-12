@@ -111,8 +111,10 @@ microservices-shop/
 - Product Service: http://localhost:3001/api-docs
 
 ## Link deploy
-- Product Service: https://microservices-shop-production-f749.up.railway.app/api/products
-
+- Product Service: https://stunning-perception-production-4c00.up.railway.app/
+- Order Service: https://microservices-shop-production-0789.up.railway.app/
+- Auth Service: https://amusing-respect-production-ad2f.up.railway.app/
+- Api Gateway: https://glistening-flow-production-6833.up.railway.app/
 ## Kết quả kiểm thử
 - CRUD product, order, auth, gateway với JWT chạy thành công ở local.
-- Product-service deploy Railway hoạt động ổn định.
+- Product-service, Order-service, Auth-service, Api-gateway deploy Railway hoạt động ổn định.
