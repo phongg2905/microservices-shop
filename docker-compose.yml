@@ -27,7 +27,7 @@ services:
       - ./product-service/.env
     environment:
       PORT: 3001
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://default:ddJXpBoJWUNDQKsTVCvPRlAJVNDabkDO@redis.railway.internal:6379
     ports:
       - "3001:3001"
     networks:
