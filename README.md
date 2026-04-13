@@ -37,7 +37,9 @@ microservices-shop/
 ├── api-gateway/
 ├── auth-service/
 ├── order-service/
+├── postman/
 ├── product-service/
+├── .gitignore
 ├── docker-compose.yml
 └── README.md
 ```
@@ -83,7 +85,7 @@ microservices-shop/
 ## Hướng dẫn chạy project local
 1. Clone project
    ```bash
-   git clone <link-repo-github>
+   git clone https://github.com/phongg2905/microservices-shop
    cd microservices-shop
    ```
 2. Chạy bằng Docker Compose
@@ -119,6 +121,14 @@ microservices-shop/
 ## Swagger
 - Product Service: http://localhost:3001/api-docs
 - Order Service: http://localhost:3002/api-docs
+
+## Postman
+- Collection: `postman/Lab2.postman_collection.json`
+- Biến môi trường gợi ý:
+  - `base_url`: http://localhost:3001
+  - `gateway_url`: http://localhost:3000
+  - `order_url`: http://localhost:3002
+  - `auth_url`: http://localhost:3003
 
 ## Link deploy
 - Product Service: https://stunning-perception-production-4c00.up.railway.app/
