@@ -118,6 +118,7 @@ microservices-shop/
 
 ## Swagger
 - Product Service: http://localhost:3001/api-docs
+- Order Service: http://localhost:3002/api-docs
 
 ## Link deploy
 - Product Service: https://stunning-perception-production-4c00.up.railway.app/
